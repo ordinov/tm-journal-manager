@@ -1,5 +1,6 @@
 <template>
   <section>
+    <button @click="deleteRecords">DELETE ALL</button>
     <b-field grouped group-multiline>
         <div class="control">
             <b-switch>Sistema</b-switch>
@@ -14,7 +15,7 @@
 
         paginated
         backend-pagination
-        :total="total"
+        :total="totalRows"
         :per-page="perPage"
         @page-change="onPageChange"
         aria-next-label="Next page"
@@ -28,17 +29,26 @@
         @sort="onSort">
 
         <template slot-scope="props">
-            <b-table-column field="date" label="Data" sortable :class="{ 'system' : isSystem(props.row), person: isPerson(props.row) }">
+            <b-table-column field="date" label="Data" sortable :class="{ 'system' : isSystem(props.row), person: isPerson(props.row) }" width="120">
                 {{ props.row.date }}
             </b-table-column>
 
-            <b-table-column field="who" label="Entità">
+            <b-table-column searchable field="who" label="Entità">
+                <template
+                  slot="searchable"
+                  slot-scope="props">
+                  <b-input
+                    v-model="props.filters[props.column.field]"
+                    placeholder="Cerca"
+                    icon="magnify"
+                    size="is-small" />
+                </template>
                 <span class="tag" :class="{ 'system' : isSystem(props.row), personBg: isPerson(props.row), animalBg: isAnimal(props.row), emoteBg: isEmote(props.row) }">
                     {{ props.row.who }}
                 </span>
             </b-table-column>
 
-            <b-table-column searchable field="message" label="Messaggio" :class="{ 'system' : isSystem(props.row), person: isPerson(props.row), emote: isEmote(props.row) }">
+            <b-table-column searchable field="message" label="Messaggio" :class="{ 'system' : isSystem(props.row), animal: isAnimal(props.row), person: isPerson(props.row), emote: isEmote(props.row) }">
                 <template
                     slot="searchable"
                     slot-scope="props">
@@ -57,16 +67,21 @@
 </template>
 
 <script>
+/* eslint-disable no-unused-vars */
 const nedb = require('./../nedb.js')
-const moment = require('moment')
+const dateformat = require('dateformat')
 export default {
   mounted() {
     this.fetchData();
     setInterval(() => { this.fetchData(); }, 1000)
   },
+  computed: {
+    totalRows() {
+      return this.logs.length / this.perPage;
+    }
+  },
   data() {
     return {
-      total: 60,
       defaultSortOrder : "-1",
       sortOrder : "-1",
       perPage: 20,
@@ -109,9 +124,10 @@ export default {
     },
     fetchData() {
       // this.isLoading = true
-      nedb.getLog({}).then(res => {
-        this.logs = res.x.map(o => { return { "date":moment(o.date).format('DD/MM [@] hh:mm:ss'), "who":o.who, "message":o.message } })
-        // this.isLoading = false;
+      nedb.getLog({deleted:false}).then(res => {
+        this.logs = res.x.map(o => { 
+          return { "date": dateformat( new Date(o.date), 'dd/mm @ HH:MM'), "who":o.who, "message":o.message } 
+        })
       })
     },
     onPageChange() {
@@ -119,17 +135,28 @@ export default {
     },
     onSort() {
 
+    },
+    deleteRecords() {
+      nedb.deleteLogs().then(() => {
+        console.log('Deletion done')
+      })
     }
   }
 }
 </script>
 <style>
+.tag:not(body) {
+  height:1.6em!important;
+}
+input.input {
+  padding-left: 10px!important;
+}
 .th-wrap > span, .control.is-small {
-  width: 98%!important
+  width: 98%!important;
 }
 .table td, .table th {
   font-size: 0.92rem!important;
-  padding: 0.2em 0.75em!important;
+  padding: 0.2em 0.3em!important;
 }
 .system {
   color: #b6b1b1!important;
@@ -145,11 +172,11 @@ export default {
   color: white!important;
 }
 .animal {
-  color: rgb(77, 59, 17)!important;
+  color: rgb(188, 192, 136)!important;
   font-style: italic!important;
 }
 .animalBg {
-  background-color: #a39f6a!important;
+  background-color: #bbc08a!important;
   color: white!important;
 }
 .emote {
