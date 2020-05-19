@@ -40,7 +40,7 @@ fs.watchFile(logfile, { interval: 1000 }, () => {
         // parse date and instanciate a Date object (ex. [01/01/2020 12:18])
         let datestring = line.substr(1, 16)
         let dateArray = /(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/.exec(datestring); 
-        let date = new Date( Date.UTC( (+dateArray[3]), (+dateArray[1]-1), (+dateArray[2]), (+dateArray[4]), (+dateArray[5]) ) );
+        let date = dateArray[3] + '-' + dateArray[1] + '-' + dateArray[2] + ' ' + dateArray[4] + ':' + dateArray[5] + ':' + dateArray[6] );
         // remove date from line then..
         line = line.substr(18).trim()
         // .. get the owner of the line (ex. System, or Tizio Caio)

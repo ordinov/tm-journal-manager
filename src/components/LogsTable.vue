@@ -110,7 +110,7 @@ export default {
     fetchData() {
       // this.isLoading = true
       nedb.getLog({}).then(res => {
-        this.logs = res.x.map(o => { return { "date":moment(o.date).format('DD.MM [@] hh:mm'), "who":o.who, "message":o.message } })
+        this.logs = res.x.map(o => { return { "date":moment(o.date).format('DD/MM [@] hh:mm:ss'), "who":o.who, "message":o.message } })
         // this.isLoading = false;
       })
     },
