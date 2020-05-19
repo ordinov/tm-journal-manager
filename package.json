@@ -17,9 +17,9 @@
   "dependencies": {
     "buefy": "^0.8.19",
     "core-js": "^3.6.4",
+    "dateformat": "^3.0.3",
     "fs": "0.0.1-security",
     "log-timestamp": "^0.3.0",
-    "moment": "^2.25.3",
     "nedb-promises": "^4.0.3",
     "read-last-lines": "^1.7.2",
     "vue": "^2.6.11"

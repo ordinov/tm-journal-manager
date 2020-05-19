@@ -1,7 +1,7 @@
 const {app} = require('electron');
 const Datastore = require('nedb-promises');
 const dbFactory = (fileName) => Datastore.create({
-  filename: `${process.env.NODE_ENV === 'development' ? '.' : app.getAppPath('userData')}/data/${fileName}`, 
+  filename: process.env.NODE_ENV === 'development' ? (__dirname + '/dev-data/'+fileName) : (app.getAppPath('userData')+'/data/'+fileName), 
   timestampData: true,
   autoload: true
 });
@@ -12,12 +12,16 @@ const config = dbFactory('config.db')
 const nedb = {
   logs: logs,
   config: config,
+  deleteLogs: async () => {
+    const x = await logs.remove({}, { multi: true } );
+    return x
+  },
   writeLog: async (obj) => {      
     const x = await logs.update(obj, obj, {upsert:true})
     return x
   },
   getLog: async (searchParams) => {
-    const x = await logs.find(searchParams).sort( { "date": -1 } )
+    const x = await logs.find(searchParams).sort( { "createdAt": -1 } )
     return {x}
   },
   writeConfig: async (obj) => {      
