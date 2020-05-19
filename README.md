@@ -1,1 +1,2 @@
-# tm-journal-manager
+# The Miracle Journal Manager
+
